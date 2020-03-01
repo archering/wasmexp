@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="data:;base64,=">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="prime.js"></script>
+    <script>
+        const max = 2000;
+
+        let isPrimse = (num) =>{
+            for (let i=2; i<num; i++) {
+
+                if(num % i == 0) {
+                    return false;//只能被1 和他本身整除
+                } 
+            }
+            return num!==1 && num!==0;
+        }
+
+        let checkPrimes = (scope) =>{
+
+            let count = 0;
+            for (let num = 0; num<=scope;num++) {
+                if(isPrimse(num)) count++;
+            }
+            return count;
+        }
+
+
+        Module["onRuntimeInitialized"] = () =>{
+       
+            let jsStart = performance.now();
+            let jscount = checkPrimes(max);
+            console.log(`js 查找 1 到 ${max} 之间的primes 数字  耗时${(performance.now() - jsStart)/1000}s, 找到${jscount}个`);
+       
+            let cStart = performance.now();
+            let count2 = _checkCPrime(max);
+            console.log(`wasm 查找 1 到 ${max} 之间的primes 数字  耗时${(performance.now() - cStart)/1000}s, 找到${count2}个`);
+        }
+
+ 
+
+    </script>
+</body>
+</html>

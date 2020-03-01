@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wasm in aciton </title>
+    <style>
+        html,body{
+            border:0;
+            margin:0;
+            width:100%;
+            height:100%;
+        }
+        canvas {
+            border:1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <canvas id="paint" width="1200" height="600"></canvas>
+    </div>
+    <script src="./canvas.js"></script>
+    <script>
+
+
+        let canvas = document.getElementById("paint");
+        let ctx = canvas.getContext("2d");
+
+
+        // 想法是，通过wasm 计算获得 画一个圆需要的所有数据 和 颜色值， js 负责花园并显示出来
+
+        const render = (dataLength) =>{
+
+            //console.log("data has beed loaded", dataLength);
+
+            // return from c is a typed array
+            let circles = new Int32Array(window.buffer,_getCircles(canvas.width, canvas.height),dataLength);
+
+            //console.log(`load ${circles} circles`);
+
+            // clear canvas ; redraw
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+
+
+            for (let i=0;i<circles.length; i=i+6) {
+
+                let circle = circles.slice(i,i + 6);
+                //console.log(circle);
+                ctx.beginPath();
+                ctx.arc(circle[0],circle[1],circle[2], 0, 2*Math.PI,false);
+                ctx.fillStyle = `rgba(${circle[3]},${circle[4]},${circle[5]},.8)`;
+                ctx.fill();                
+
+            }
+
+
+
+
+            //console.log("draw end");
+            window.requestAnimationFrame(()=>{
+                render(dataLength);
+            })
+        }
+
+
+
+    </script>    
+</body>
+</html>

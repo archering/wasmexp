@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>这个页面用来引用和显示从c中export 导出的函数</h2>
+    <script src="./math.js"></script>
+    <script>
+
+        
+
+        Module["onRuntimeInitialized"] = () =>  {
+            console.log(_main());
+        }
+
+        setTimeout(()=>{
+            console.log(" 执行c导出的函数 _main ",_main());
+            console.log(" 执行c导出的函数 _add ",_add(1,2));
+            console.log(" 执行c导出的函数 _doubleit ",_doubleit(10));
+
+        },2500);
+
+
+    </script>
+</body>
+</html>

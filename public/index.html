@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="data:;base64,=">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hello world  , hello webassembly</h1>  
+    <script>
+        function see() {
+            console.log(`i can see it `);
+        }
+
+        let customemory = new WebAssembly.Memory({initial:2});//2page = 128kb
+        function readTextFrombuffer(offset, len){
+            let buffer = new Uint8Array(customemory.buffer,offset,len);
+            let str = new TextDecoder().decode(buffer);
+            console.log("终于找到你：",str);
+            window.dispatchEvent(new CustomEvent("hellostart",{detail:str}));
+        }
+
+        window.addEventListener("hellostart",function(evt){
+            console.log(evt.detail);
+        });
+
+        const imports = {
+            env : {  //导入到wasm 里面时的默认module 名字
+                numLog : console.log,
+                strLog: console.log,
+                fromJS: see,
+                readBuffer: readTextFrombuffer,
+                memory: customemory
+            }
+        }
+
+
+        WebAssembly.instantiateStreaming(fetch("./main.wasm"),imports).then( wasm => {
+
+         
+
+            console.log("wasm has been loaded ",wasm);
+
+            console.log(`使用wasm导出的方法 main,或者值： ${wasm.instance.exports.main()}`);
+
+            console.log(`wasm.module.exports,${wasm.module.exports}`);
+
+            // 获得wasm 上所有导出模块
+            console.log(`WebAssembly.module.exports()`,WebAssembly.Module.exports(wasm.module));
+
+
+            console.log("-------下面测试的是 imports 和  plain----------");
+
+            
+
+            wasm.instance.exports.printSum();
+
+            wasm.instance.exports.testFromJS(1,2);
+
+            wasm.instance.exports.greet();
+
+            // 获得wasm 上所有import的模块
+            console.log( WebAssembly.Module.imports(wasm.module));
+
+            wasm.instance.exports.greet2(); // 使用js 传入的 readBuffer 函数
+
+        });
+    </script>
+</body>
+</html>
